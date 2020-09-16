@@ -1,7 +1,7 @@
 //============================================================================
 // Name        : Fluidgang.cpp
 // Author      : Wolfgang Schuster
-// Version     : 0.02 10.09.2020
+// Version     : 0.03 16.09.2020
 // Copyright   : Wolfgang Schuster
 // Description : Fluidsynth MIDI for Linux
 // License     : GNU General Public License v3.0
@@ -367,8 +367,8 @@ int main(int argc, char* argv[])
 //    fluid_synth_program_change(fluid_synth, 0 , 0);
 	fluid_synth_program_reset(fluid_synth);
     int fluid_nmid_chan = fluid_synth_count_midi_channels(fluid_synth);
-    fluid_settings_getstr(fluid_settings, "audio.alsa.device", &fluid_alsa_device);
-    fluid_settings_getstr(fluid_settings, "audio.jack.autoconnect", &fluid_jack_id);
+//    fluid_settings_getstr(fluid_settings, "audio.alsa.device", &fluid_alsa_device);
+//    fluid_settings_getstr(fluid_settings, "audio.jack.autoconnect", &fluid_jack_id);
 
 // GM Instruments
 	vector<char const *> gm_program_name;
@@ -897,7 +897,6 @@ int main(int argc, char* argv[])
 								if(CheckMouse(mousex, mousey, play[i].button_rect)==true)
 								{
 									fluid_synth_noteon(fluid_synth, i, 60, 100);
-									cout << i << endl;
 									fluid_synth_noteoff(fluid_synth, i, 60);
 								}
 								if(CheckMouse(mousex, mousey, upbutton[i].button_rect)==true)
@@ -965,7 +964,6 @@ int main(int argc, char* argv[])
 										}
 									}
 									fluid_synth_get_program (fluid_synth, i, &sfid, &fsbank, &fsprogram);
-									cout << "program down " << i << endl;
 								}
 							}
 							if(CheckMouse(mousex, mousey, info.button_rect)==true)
