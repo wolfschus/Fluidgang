@@ -1,7 +1,7 @@
 //============================================================================
 // Name        : Fluidgang.cpp
 // Author      : Wolfgang Schuster
-// Version     : 0.03 16.09.2020
+// Version     : 0.10 22.09.2020
 // Copyright   : Wolfgang Schuster
 // Description : Fluidsynth MIDI for Linux
 // License     : GNU General Public License v3.0
@@ -360,12 +360,12 @@ int main(int argc, char* argv[])
 	unsigned int fsbank = 0;
 	unsigned int fsprogram = 0;
 	
-	int aktprog[16];
+/*	int aktprog[16];
 	for(int i=0;i<16;i++)
 	{
 		aktprog[i]=0;
 	}
-	aktprog[9]=157;
+	aktprog[9]=157;*/
 
     fluid_settings_setint(fluid_settings, "synth.polyphony", 128);
     fluid_synth = new_fluid_synth(fluid_settings);
@@ -399,7 +399,7 @@ int main(int argc, char* argv[])
 		cout << fptmp.bank << " " << fptmp.program << " " << fptmp.name << endl;
 	}*/
 			
-	cout << fluid_prog.size() << endl;
+//	cout << fluid_prog.size() << endl;
 
 
 	// [vor der Event-Schleife] In diesem Array merken wir uns, welche Tasten gerade gedrückt sind.
@@ -571,13 +571,13 @@ int main(int argc, char* argv[])
 					SDL_FreeSurface(text);
 					sprintf(tmp, "%d",i+1);
 					text = TTF_RenderText_Blended(fontsmall, tmp, textColor);
-					textPosition.x = 1*scorex-text->w-3;
+					textPosition.x = 2*scorex-text->w-3;
 					textPosition.y = (2.5+i)*scorey-text->h/2;
 					SDL_BlitSurface(text, 0, screen, &textPosition);
 
-					play[i].show(screen, fontsmall);
-					upbutton[i].show(screen, fontsmall);
-					downbutton[i].show(screen, fontsmall);
+//					play[i].show(screen, fontsmall);
+//					upbutton[i].show(screen, fontsmall);
+//					downbutton[i].show(screen, fontsmall);
 				}
 
 				for(int i=0;i<16;i++)
@@ -588,24 +588,24 @@ int main(int argc, char* argv[])
 					{
 						if(fptmp.bank==fsbank and fptmp.program==fsprogram)
 						{
-							SDL_FreeSurface(text);
-							sprintf(tmp, "%d",fptmp.bank);
-							text = TTF_RenderText_Blended(fontsmall, tmp, textColor);
-							textPosition.x = 5*scorex-text->w/2;
-							textPosition.y = (2.5+i)*scorey-text->h/2;
-							SDL_BlitSurface(text, 0, screen, &textPosition);
+//							SDL_FreeSurface(text);
+//							sprintf(tmp, "%d",fptmp.bank);
+//							text = TTF_RenderText_Blended(fontsmall, tmp, textColor);
+//							textPosition.x = 2*scorex-text->w/2;
+//							textPosition.y = (2.5+i)*scorey-text->h/2;
+//							SDL_BlitSurface(text, 0, screen, &textPosition);
 
-							SDL_FreeSurface(text);
-							sprintf(tmp, "%d",fptmp.program);
-							text = TTF_RenderText_Blended(fontsmall, tmp, textColor);
-							textPosition.x = 7*scorex-text->w/2;
-							textPosition.y = (2.5+i)*scorey-text->h/2;
-							SDL_BlitSurface(text, 0, screen, &textPosition);
+//							SDL_FreeSurface(text);
+//							sprintf(tmp, "%d",fptmp.program);
+//							text = TTF_RenderText_Blended(fontsmall, tmp, textColor);
+//							textPosition.x = 4*scorex-text->w/2;
+//							textPosition.y = (2.5+i)*scorey-text->h/2;
+//							SDL_BlitSurface(text, 0, screen, &textPosition);
 
 							SDL_FreeSurface(text);
 							sprintf(tmp, "%s",fptmp.name);
 							text = TTF_RenderText_Blended(fontsmall, tmp, textColor);
-							textPosition.x = 8*scorex+3;
+							textPosition.x = 3*scorex+3;
 							textPosition.y = (2.5+i)*scorey-text->h/2;
 							SDL_BlitSurface(text, 0, screen, &textPosition);
 						}
@@ -646,6 +646,18 @@ int main(int argc, char* argv[])
 				text = TTF_RenderText_Blended(fontsmall, tmp, textColor);
 				textPosition.x = 28*scorex;
 				textPosition.y = 4.5*scorey-text->h/2;
+				SDL_BlitSurface(text, 0, screen, &textPosition);
+
+				SDL_FreeSurface(text);
+				text = TTF_RenderText_Blended(fontsmall, "Buffersize", textColor);
+				textPosition.x = 20*scorex;
+				textPosition.y = 5.5*scorey-text->h/2;
+				SDL_BlitSurface(text, 0, screen, &textPosition);
+				SDL_FreeSurface(text);
+				sprintf(tmp, "%d", fluid_synth_get_internal_bufsize(fluid_synth));
+				text = TTF_RenderText_Blended(fontsmall, tmp, textColor);
+				textPosition.x = 28*scorex;
+				textPosition.y = 5.5*scorey-text->h/2;
 				SDL_BlitSurface(text, 0, screen, &textPosition);
 
 
@@ -765,7 +777,7 @@ int main(int argc, char* argv[])
 			        {
 			        	if(mode==0)
 			        	{
-							for(int i=0;i<16;i++)
+/*							for(int i=0;i<16;i++)
 							{
 								if(CheckMouse(mousex, mousey, play[i].button_rect)==true)
 								{
@@ -822,7 +834,7 @@ int main(int argc, char* argv[])
 	//									fluid_synth_get_program (fluid_synth, i, &sfid, &fsbank, &fsprogram);
 									}
 								}
-							}
+							}*/
 							if(CheckMouse(mousex, mousey, info.button_rect)==true)
 							{
 								mode=1;
