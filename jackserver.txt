@@ -1,1 +1,1 @@
-jackd -d alsa --device hw:2,0 --rate 44100 --period 102
+jackd -d alsa --device hw:2,0 --rate 44100 --period 1024

@@ -1,7 +1,7 @@
 //============================================================================
 // Name        : Fluidgang.cpp
 // Author      : Wolfgang Schuster
-// Version     : 0.10 22.09.2020
+// Version     : 0.11 23.09.2020
 // Copyright   : Wolfgang Schuster
 // Description : Fluidsynth MIDI for Linux
 // License     : GNU General Public License v3.0
@@ -27,6 +27,7 @@
 #include <iostream>
 #include <sstream>
 #include <fluidsynth.h>
+#include <alsa/asoundlib.h>
 
 
 #include "images/media-playback-start.xpm"
@@ -209,26 +210,27 @@ void midiincallback( double deltatime, std::vector< unsigned char > *message, vo
 {
 	unsigned int nBytes = message->size();
 
-	for(unsigned int i=0;i<nBytes;i++)
-	{
-		cout << (int)message->at(i) << " ";
-	}
-	cout << endl;
+//	for(unsigned int i=0;i<nBytes;i++)
+//	{
+//		cout << (int)message->at(i) << " ";
+//	}
+//	cout << endl;
+
 	SDL_PushEvent(&CPUevent);
 
 	if((int)message->at(0)>=144 and (int)message->at(0)<=159)
 	{
-		cout << "NoteOn " << (int)message->at(0)-144 << " " << (int)message->at(1) << " " << (int)message->at(2) << endl;
+//		cout << "NoteOn " << (int)message->at(0)-144 << " " << (int)message->at(1) << " " << (int)message->at(2) << endl;
 		fluid_synth_noteon(fluid_synth, (int)message->at(0)-144, (int)message->at(1), (int)message->at(2));
 	}
 	if((int)message->at(0)>=128 and (int)message->at(0)<=143)
 	{
-		cout << "NoteOff " << (int)message->at(0)-128 << " " << (int)message->at(1) << endl;
+//		cout << "NoteOff " << (int)message->at(0)-128 << " " << (int)message->at(1) << endl;
 		fluid_synth_noteoff(fluid_synth, (int)message->at(0)-128, (int)message->at(1));
 	}
 	if((int)message->at(0)>=192 and (int)message->at(0)<=207)
 	{
-		cout << "ProgramChange " << (int)message->at(0)-192 << " " << (int)message->at(1) << endl;
+//		cout << "ProgramChange " << (int)message->at(0)-192 << " " << (int)message->at(1) << endl;
 		fluid_synth_program_change(fluid_synth, (int)message->at(0)-192, (int)message->at(1));
 	}
 	anzeige=true;								
@@ -368,16 +370,21 @@ int main(int argc, char* argv[])
 	aktprog[9]=157;*/
 
     fluid_settings_setint(fluid_settings, "synth.polyphony", 128);
-    fluid_synth = new_fluid_synth(fluid_settings);
     fluid_settings_setstr(fluid_settings, "audio.driver", "jack");
     fluid_settings_setstr(fluid_settings, "audio.jack.autoconnect", "yes");
     fluid_settings_setint(fluid_settings, "audio.period-size", 512);
+    fluid_synth = new_fluid_synth(fluid_settings);
+    
     adriver = new_fluid_audio_driver(fluid_settings, fluid_synth);
     sf2id = fluid_synth_sfload(fluid_synth,"/usr/share/sounds/sf2/FluidR3_GM.sf2",true);
+    
 //    fluid_synth_program_change(fluid_synth, 0 , 0);
 	fluid_synth_program_reset(fluid_synth);
     int fluid_nmid_chan = fluid_synth_count_midi_channels(fluid_synth);
-//    fluid_settings_getstr(fluid_settings, "audio.alsa.device", &fluid_alsa_device);
+    
+    fluid_settings_getstr(fluid_settings, "audio.alsa.device", &fluid_alsa_device);
+    cout << fluid_alsa_device << endl;
+    
 //    fluid_settings_getstr(fluid_settings, "audio.jack.autoconnect", &fluid_jack_id);
 	fluid_synth_set_channel_type(fluid_synth,9,CHANNEL_TYPE_DRUM);
 
@@ -513,13 +520,40 @@ int main(int argc, char* argv[])
 	}
 
 	// MIDI IN Device
-	if(0<inPorts)
+	if(1<inPorts)
 	{
-		midiin->openPort( 0 );
+		midiin->openPort( 1 );
 		midiin->setCallback( &midiincallback );
 		// Don't ignore sysex, timing, or active sensing messages.
 		midiin->ignoreTypes( false, false, false );
 	}
+
+// ALSA
+    int totalCards = 0;   // No cards found yet
+    int cardNum = -1;     // Start with first card
+    int err;
+
+    for (;;) {
+        // Get next sound card's card number.
+        if ((err = snd_card_next(&cardNum)) < 0) {
+            fprintf(stderr, "Can't get the next card number: %s\n",
+                            snd_strerror(err));
+            break;
+        }
+
+        if (cardNum < 0)
+            // No more cards
+            break;
+
+        ++totalCards;   // Another card found, so bump the count
+    }
+
+    printf("ALSA found %i card(s)\n", totalCards);
+
+    // ALSA allocates some memory to load its config file when we call
+    // snd_card_next. Now that we're done getting the info, tell ALSA
+    // to unload the info and release the memory.
+    snd_config_update_free_global();
 	
 	while(run)
 	{
@@ -660,7 +694,17 @@ int main(int argc, char* argv[])
 				textPosition.y = 5.5*scorey-text->h/2;
 				SDL_BlitSurface(text, 0, screen, &textPosition);
 
-
+				SDL_FreeSurface(text);
+				text = TTF_RenderText_Blended(fontsmall, "Sounddevice", textColor);
+				textPosition.x = 20*scorex;
+				textPosition.y = 6.5*scorey-text->h/2;
+				SDL_BlitSurface(text, 0, screen, &textPosition);
+				SDL_FreeSurface(text);
+				sprintf(tmp, "%s", fluid_alsa_device);
+				text = TTF_RenderText_Blended(fontsmall, tmp, textColor);
+				textPosition.x = 28*scorex;
+				textPosition.y = 6.5*scorey-text->h/2;
+				SDL_BlitSurface(text, 0, screen, &textPosition);
 
 // Exit Info
 
